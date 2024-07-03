@@ -28,11 +28,11 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 1. Clone the repository to your local machine:
    ```bash
-   git clone https://github.com/your-username/banabyte-radio-player.git
+   git clone https://github.com/Banabyte/live.banabyte.com.git
    ```
 2. Navigate to the project directory:
    ```bash
-   cd banabyte-radio-player
+   cd live.banabyte.com
    ```
 3. Open `index.html` in your preferred web browser.
 
@@ -42,25 +42,6 @@ Follow these instructions to get a copy of the project up and running on your lo
 2. The app will automatically fetch and display available radio stations.
 3. Click on a station to start streaming. The currently playing song and station details will be displayed.
 4. The background will update to show the album art of the currently playing song.
-
-### Contributing
-
-We welcome contributions to improve the Banabyte Radio Player! Here’s how you can help:
-
-1. Fork the repository.
-2. Create a new branch:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-3. Make your changes and commit them:
-   ```bash
-   git commit -m 'Add some feature'
-   ```
-4. Push to the branch:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-5. Open a pull request to the main branch of this repository.
 
 ### License
 
