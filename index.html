@@ -7,13 +7,25 @@
     <meta name="keywords" content="radio player, online radio, music streaming, internet radio, Banabyte Radio Player">
     <meta name="author" content="Banabyte LLC">
     <title>Banabyte Radio Player - Stream Your Favorite Music</title>
+	
     <link rel="stylesheet" href="assets/styles.css">
-</head>
+    </head>
 <body>
     <header>
+        <button id="toggle-stations" class="menu-icon">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
         <h1>Banabyte Radio Player</h1>
     </header>
     <main>
+        <div class="sidebar" id="stations-sidebar">
+            <section id="stations-list">
+                <h2>Stations</h2>
+                <ul id="stations-menu"></ul>
+            </section>
+        </div>
         <section id="currently-playing">
             <h2>Currently Playing</h2>
             <div id="station-info">
@@ -22,10 +34,6 @@
                 <p id="song-title" class="song-title"></p>
             </div>
             <audio id="audio-player" controls></audio>
-        </section>
-        <section id="stations-list">
-            <h2>Stations</h2>
-            <ul id="stations-menu"></ul>
         </section>
     </main>
     <footer>
