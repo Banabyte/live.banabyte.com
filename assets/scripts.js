@@ -58,65 +58,33 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log('Now playing data:', data); // Log now playing data
                 if (currentStationId !== stationId) return; // Ensure the data corresponds to the current station
 
-                const stationName = data.station.name;
-                const songTitle = data.now_playing ? `${data.now_playing.song.title} - ${data.now_playing.song.artist}` : 'No song currently playing';
-                const albumArt = data.now_playing && data.now_playing.song.art ? data.now_playing.song.art : null;
-                const listenUrl = data.station.listen_url;
-
-                // Update Media Session API information
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.metadata = new MediaMetadata({
-                        title: songTitle,
-                        artist: data.now_playing.song.artist,
-                        album: data.now_playing.song.album,
-                        artwork: [
-                            { src: albumArt, sizes: '256x256', type: 'image/png' }
-                        ]
-                    });
-
-                    navigator.mediaSession.setActionHandler('play', function() {
-                        audioPlayer.play();
-                    });
-
-                    navigator.mediaSession.setActionHandler('pause', function() {
-                        audioPlayer.pause();
-                    });
-
-                    navigator.mediaSession.setActionHandler('seekbackward', function() {
-                        audioPlayer.currentTime -= 10;
-                    });
-
-                    navigator.mediaSession.setActionHandler('seekforward', function() {
-                        audioPlayer.currentTime += 10;
-                    });
-                }
-
-                // Display information on the webpage
-                const stationNameElement = document.getElementById('station-name');
-                const songTitleElement = document.getElementById('song-title');
+                const stationName = document.getElementById('station-name');
+                const songTitle = document.getElementById('song-title');
                 const audioPlayer = document.getElementById('audio-player');
-                const albumArtElement = document.getElementById('album-art');
+                const albumArt = document.getElementById('album-art');
 
-                stationNameElement.textContent = stationName;
-                songTitleElement.textContent = songTitle;
-                audioPlayer.src = listenUrl;
+                // Display station name
+                stationName.textContent = data.station.name;
 
-                if (albumArt) {
-                    albumArtElement.src = albumArt;
-                    albumArtElement.alt = `${data.now_playing.song.artist} - ${data.now_playing.song.title}`;
-                    albumArtElement.style.display = 'block';
-                } else {
-                    albumArtElement.style.display = 'none';
-                }
-
+                // Display currently playing song
                 if (data.now_playing) {
-                    audioPlayer.play();
+                    songTitle.textContent = `Now Playing: ${data.now_playing.song.title} - ${data.now_playing.song.artist}`;
+
+                    // Set album art image
+                    const albumArtUrl = data.now_playing.song.art || defaultBackground;
+                    albumArt.src = albumArtUrl;
+                    albumArt.alt = `${data.now_playing.song.artist} - ${data.now_playing.song.title}`;
                 } else {
-                    audioPlayer.pause();
+                    songTitle.textContent = 'No song currently playing.';
+                    albumArt.src = ''; // Clear album art
+                    albumArt.alt = 'No album art available';
                 }
 
-                // Set background image to a specific URL
-                document.body.style.backgroundImage = 'url("https://radio.banabyte.com/static/uploads/banabyte_radio/background.1700689313.png")';
+                // Play the station if not already playing
+                if (audioPlayer.src !== data.station.listen_url) {
+                    audioPlayer.src = data.station.listen_url;
+                    audioPlayer.play();
+                }
             })
             .catch(error => console.error('Error fetching now playing information:', error));
     }
