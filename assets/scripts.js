@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const stationName = document.getElementById('station-name');
                 const songTitle = document.getElementById('song-title');
                 const audioPlayer = document.getElementById('audio-player');
+                const albumArt = document.getElementById('album-art');
 
                 // Display station name
                 stationName.textContent = data.station.name;
@@ -69,12 +70,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.now_playing) {
                     songTitle.textContent = `Now Playing: ${data.now_playing.song.title} - ${data.now_playing.song.artist}`;
 
-                    // Set background image to album art
-                    const backgroundUrl = `https://radio.banabyte.com/station/${stationId}/art/${data.now_playing.media_id}`;
-                    document.body.style.backgroundImage = `url(${backgroundUrl})`;
+                    // Set album art image
+                    const albumArtUrl = data.now_playing.song.art || defaultBackground;
+                    albumArt.src = albumArtUrl;
+                    albumArt.alt = `${data.now_playing.song.artist} - ${data.now_playing.song.title}`;
                 } else {
                     songTitle.textContent = 'No song currently playing.';
-                    document.body.style.backgroundImage = defaultBackground; // Set default background
+                    albumArt.src = ''; // Clear album art
+                    albumArt.alt = 'No album art available';
                 }
 
                 // Play the station if not already playing
