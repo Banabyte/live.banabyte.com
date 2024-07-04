@@ -15,7 +15,8 @@ body {
 }
 
 header {
-    background-color: #333;
+    background-color: #1a1a1acc;
+	backdrop-filter: blur(10px);
     padding: 20px;
     text-align: center;
     position: relative;
@@ -153,7 +154,8 @@ audio {
 }
 
 footer {
-    background-color: #333;
+    background-color: #1a1a1acc;
+	backdrop-filter: blur(10px);
     color: #f0f0f0;
     text-align: center;
     padding: 10px 20px;
