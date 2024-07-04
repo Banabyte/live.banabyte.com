@@ -2,13 +2,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Define variables
     let toggleStationsButton = document.getElementById('toggle-stations');
     let stationsSidebar = document.getElementById('stations-sidebar');
+    let audioPlayer = document.getElementById('audio-player');
 
     // Toggle sidebar visibility
     toggleStationsButton.addEventListener('click', function () {
         stationsSidebar.classList.toggle('open');
     });
 
-    // Fetch stations from AzuraCast API
+    // Fetch stations from AzuraCast API and play the first station by default
     let currentStationId = null;
     let fetchInterval = null;
     const defaultBackground = 'url("path-to-default-background-image")'; // Set your default background image path
@@ -69,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const stationName = document.getElementById('station-name');
                 const songTitle = document.getElementById('song-title');
-                const audioPlayer = document.getElementById('audio-player');
                 const albumArt = document.getElementById('album-art');
 
                 // Display station name
@@ -83,6 +83,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     const albumArtUrl = data.now_playing.song.art || defaultBackground;
                     albumArt.src = albumArtUrl;
                     albumArt.alt = `${data.now_playing.song.artist} - ${data.now_playing.song.title}`;
+
+                    // Update body background based on album art
+                    if (albumArtUrl) {
+                        document.body.style.backgroundImage = `url(${albumArtUrl})`;
+                        document.body.style.backgroundSize = 'cover';
+                        document.body.style.backgroundPosition = 'center';
+                        document.body.style.backgroundBlendMode = 'overlay';
+                    }
 
                     // Set Media Session API metadata
                     if ('mediaSession' in navigator) {
@@ -119,4 +127,24 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(error => console.error('Error fetching now playing information:', error));
     }
+
+    // Custom audio controls functionality
+    let playPauseButton = document.getElementById('play-pause-button');
+    let volumeSlider = document.getElementById('volume-slider');
+    let volumeLabel = document.getElementById('volume-label');
+
+    playPauseButton.addEventListener('click', function () {
+        if (audioPlayer.paused) {
+            audioPlayer.play();
+            playPauseButton.innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+            audioPlayer.pause();
+            playPauseButton.innerHTML = '<i class="fas fa-play"></i>';
+        }
+    });
+
+      volumeSlider.addEventListener('input', function () {
+        audioPlayer.volume = volumeSlider.value;
+        volumeLabel.textContent = `Volume: ${(volumeSlider.value * 100).toFixed(0)}%`;
+    });
 });

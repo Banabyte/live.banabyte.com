@@ -9,7 +9,8 @@
     <title>Banabyte Radio Player - Stream Your Favorite Music</title>
 	
     <link rel="stylesheet" href="assets/styles.css">
-    </head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
 <body>
     <header>
         <button id="toggle-stations" class="menu-icon">
@@ -34,6 +35,11 @@
                 <p id="song-title" class="song-title"></p>
             </div>
             <audio id="audio-player" controls></audio>
+            <div id="custom-audio-controls">
+                <button id="play-pause-button" class="control-button"><i class="fas fa-play"></i></button>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
+                <span id="volume-label">Volume: 100%</span>
+            </div>
         </section>
     </main>
     <footer>
