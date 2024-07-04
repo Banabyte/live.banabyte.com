@@ -1,18 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Define variables
-    let toggleStationsButton = document.getElementById('toggle-stations');
-    let stationsSidebar = document.getElementById('stations-sidebar');
-
-    // Toggle sidebar visibility
-    toggleStationsButton.addEventListener('click', function () {
-        stationsSidebar.classList.toggle('open');
-    });
-
-    // Fetch stations from AzuraCast API
     let currentStationId = null;
     let fetchInterval = null;
     const defaultBackground = 'url("path-to-default-background-image")'; // Set your default background image path
 
+    // Fetch stations from AzuraCast API
     fetch('https://radio.banabyte.com/api/stations')
         .then(response => {
             if (!response.ok) {
@@ -83,32 +74,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     const albumArtUrl = data.now_playing.song.art || defaultBackground;
                     albumArt.src = albumArtUrl;
                     albumArt.alt = `${data.now_playing.song.artist} - ${data.now_playing.song.title}`;
-
-                    // Set Media Session API metadata
-                    if ('mediaSession' in navigator) {
-                        navigator.mediaSession.metadata = new MediaMetadata({
-                            title: data.now_playing.song.title,
-                            artist: data.now_playing.song.artist,
-                            album: data.station.name,
-                            artwork: [
-                                { src: albumArtUrl, sizes: '96x96', type: 'image/png' },
-                                { src: albumArtUrl, sizes: '128x128', type: 'image/png' },
-                                { src: albumArtUrl, sizes: '192x192', type: 'image/png' },
-                                { src: albumArtUrl, sizes: '256x256', type: 'image/png' },
-                                { src: albumArtUrl, sizes: '384x384', type: 'image/png' },
-                                { src: albumArtUrl, sizes: '512x512', type: 'image/png' },
-                            ]
-                        });
-                    }
                 } else {
                     songTitle.textContent = 'No song currently playing.';
                     albumArt.src = ''; // Clear album art
                     albumArt.alt = 'No album art available';
-
-                    // Clear Media Session API metadata
-                    if ('mediaSession' in navigator) {
-                        navigator.mediaSession.metadata = null;
-                    }
                 }
 
                 // Play the station if not already playing
