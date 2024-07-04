@@ -1,9 +1,18 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Define variables
+    let toggleStationsButton = document.getElementById('toggle-stations');
+    let stationsSidebar = document.getElementById('stations-sidebar');
+
+    // Toggle sidebar visibility
+    toggleStationsButton.addEventListener('click', function () {
+        stationsSidebar.classList.toggle('open');
+    });
+
+    // Fetch stations from AzuraCast API
     let currentStationId = null;
     let fetchInterval = null;
     const defaultBackground = 'url("path-to-default-background-image")'; // Set your default background image path
 
-    // Fetch stations from AzuraCast API
     fetch('https://radio.banabyte.com/api/stations')
         .then(response => {
             if (!response.ok) {
