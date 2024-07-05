@@ -1,0 +1,41 @@
+{
+  "name": "Banabyte Radio Player",
+  "short_name": "Banabyte Radio",
+  "description": "Stream diverse radio stations with ease. Discover and enjoy your favorite music with our user-friendly radio player.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#57a0d2",
+  "icons": [
+    {
+      "src": "assets/xhdpi.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/xxhdpi.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/xxxhdpi.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/app_icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
