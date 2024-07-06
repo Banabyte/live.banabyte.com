@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let toggleStationsButton = document.getElementById('toggle-stations');
     let stationsSidebar = document.getElementById('stations-sidebar');
     let audioPlayer = document.getElementById('audio-player');
+    let currentStationId = null;
+    let songEndTimeout = null;
+    const defaultBackground = 'url("path-to-default-background-image")'; // Set your default background image path
 
     // Toggle sidebar visibility
     toggleStationsButton.addEventListener('click', function () {
@@ -10,10 +13,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Fetch stations from AzuraCast API and play the first station by default
-    let currentStationId = null;
-    let fetchInterval = null;
-    const defaultBackground = 'url("path-to-default-background-image")'; // Set your default background image path
-
     fetch('https://radio.banabyte.com/api/stations')
         .then(response => {
             if (!response.ok) {
@@ -45,14 +44,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         currentStationId = stationId;
         fetchNowPlaying(stationId);
-
-        // Clear any existing interval
-        if (fetchInterval) {
-            clearInterval(fetchInterval);
-        }
-
-        // Set interval to fetch now playing information every 10 seconds
-        fetchInterval = setInterval(() => fetchNowPlaying(stationId), 10000);
     }
 
     // Function to fetch and display the currently playing song
@@ -108,6 +99,20 @@ document.addEventListener('DOMContentLoaded', function () {
                             ]
                         });
                     }
+
+                    // Clear any existing timeout
+                    if (songEndTimeout) {
+                        clearTimeout(songEndTimeout);
+                    }
+
+                    // Calculate remaining time and set timeout to fetch next song information
+                    const startTimestamp = data.now_playing.played_at * 1000;
+                    const currentTimestamp = Date.now();
+                    const elapsedMs = currentTimestamp - startTimestamp;
+                    const durationMs = data.now_playing.duration * 1000;
+                    const remainingMs = durationMs - elapsedMs;
+
+                    songEndTimeout = setTimeout(() => fetchNowPlaying(stationId), remainingMs);
                 } else {
                     songTitle.textContent = 'No song currently playing.';
                     albumArt.src = ''; // Clear album art
@@ -143,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-      volumeSlider.addEventListener('input', function () {
+    volumeSlider.addEventListener('input', function () {
         audioPlayer.volume = volumeSlider.value;
         volumeLabel.textContent = `Volume: ${(volumeSlider.value * 100).toFixed(0)}%`;
     });
