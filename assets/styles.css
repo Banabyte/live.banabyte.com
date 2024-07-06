@@ -1,4 +1,3 @@
-/* General Styles */
 body {
     background-size: cover;
     background-repeat: no-repeat;
@@ -10,24 +9,26 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    transition: background-image 1s ease;
 }
 
 header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
     background-color: #1a1a1acc;
     backdrop-filter: blur(10px);
-    padding: 20px;
-    text-align: center;
     position: relative;
-    z-index: 1001;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 h1 {
     margin: 0;
     font-size: 2.5em;
     color: #ffffff;
+    text-align: center;
+    flex-grow: 1; /* Allow the header name to grow to take available space */
+    z-index: 1; /* Ensure it stays above other content */
 }
 
 .menu-icon {
@@ -41,7 +42,8 @@ h1 {
     width: 30px;
     height: 20px;
     position: absolute;
-    left: 20px;
+    left: 20px; /* Adjust as needed for spacing */
+    z-index: 1; /* Ensure it stays above other content */
 }
 
 .bar {
@@ -56,24 +58,53 @@ h1 {
     background-color: #ffffff;
 }
 
+/* Adjustments for smaller screens */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .menu-icon {
+        position: absolute;
+        left: 10px;
+    }
+
+    h1 {
+        text-align: center;
+		font-size: inherit;
+        flex-grow: 1;
+    }
+}
+
 main {
     flex: 1;
     display: flex;
     justify-content: center;
     position: relative;
+	background-color: rgb(43 43 43 / 39%);
 }
 
 .sidebar {
     width: 0;
     height: 100%;
+	overflow-x: clip;
     overflow-y: auto;
     position: absolute;
     top: 0;
     left: 0;
     background-color: #1a1a1acc;
-    backdrop-filter: blur(10px);    
+    backdrop-filter: blur(10px);
     transition: width 0.3s ease;
     z-index: 1002;
+    white-space: nowrap; /* Ensure content does not wrap */
+}
+
+.sidebar-content {
+    width: 250px; /* Fixed width for the content */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .sidebar.open {
@@ -125,16 +156,25 @@ li:hover {
 }
 
 .album-art {
-    width: 300px;
-    height: 300px;
+    min-width: 100px;
+    max-width: 300px;
+    height: -webkit-fill-available;
     border-radius: 8px;
     margin: 10px 0;
-	box-shadow: 0px 0.7px 4px 0px #00000057;
+    box-shadow: 0px 0.7px 4px 0px #00000057;
+    transition: opacity 1s ease;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
 }
 
-.song-title {
-    font-weight: bold;
-    margin: 10px 0;
+.album-art.fade-out {
+    opacity: 0;
+}
+
+.album-art.fade-in {
+    opacity: 1;
 }
 
 audio {
@@ -151,7 +191,7 @@ footer {
 
 /* Frosted glass effect for currently playing section */
 #currently-playing {
-    background-color: rgba(255, 255, 255, 0.1); /* Slightly opaque white background */
+    background-color: #1a1a1a57; /* Slightly opaque white background */
     backdrop-filter: blur(10px); /* Blur effect */
     align-content: center;
 }
@@ -159,9 +199,10 @@ footer {
 /* Custom Audio Controls Styles */
 #custom-audio-controls {
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     align-items: center;
     margin-top: 20px;
+    flex-wrap: wrap;
 }
 
 .control-button {
@@ -174,8 +215,6 @@ footer {
     cursor: pointer;
     font-size: 1.5em; /* Adjust icon size */
 }
-
-
 
 #volume-slider {
     width: 150px;

@@ -7,12 +7,16 @@ document.addEventListener('DOMContentLoaded', function () {
     let songEndTimeout = null;
     const defaultBackground = 'url("path-to-default-background-image")'; // Set your default background image path
 
+    // Set default volume to 25%
+    audioPlayer.volume = 0.25;
+    document.getElementById('volume-label').textContent = 'Volume: 25%';
+
     // Toggle sidebar visibility
     toggleStationsButton.addEventListener('click', function () {
         stationsSidebar.classList.toggle('open');
     });
 
-    // Fetch stations from AzuraCast API and play the first station by default
+    // Fetch stations from AzuraCast API and play the first station by default or last played station from localStorage
     fetch('https://radio.banabyte.com/api/stations')
         .then(response => {
             if (!response.ok) {
@@ -27,12 +31,18 @@ document.addEventListener('DOMContentLoaded', function () {
             data.forEach(station => {
                 const stationItem = document.createElement('li');
                 stationItem.textContent = station.name;
-                stationItem.addEventListener('click', () => playStation(station.id));
+                stationItem.addEventListener('click', () => {
+                    playStation(station.id);
+                    localStorage.setItem('lastStationId', station.id); // Save the selected station ID
+                });
                 stationsMenu.appendChild(stationItem);
             });
 
-            // Display information about currently playing song for the first station
-            if (data.length > 0) {
+            // Check localStorage for the last played station ID
+            const lastStationId = localStorage.getItem('lastStationId');
+            if (lastStationId) {
+                playStation(lastStationId);
+            } else if (data.length > 0) {
                 playStation(data[0].id);
             }
         })
@@ -72,16 +82,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Set album art image
                     const albumArtUrl = data.now_playing.song.art || defaultBackground;
-                    albumArt.src = albumArtUrl;
-                    albumArt.alt = `${data.now_playing.song.artist} - ${data.now_playing.song.title}`;
+
+                    // Smooth transition for album art
+                    albumArt.classList.remove('fade-in');
+                    albumArt.classList.add('fade-out');
+                    setTimeout(() => {
+                        albumArt.src = albumArtUrl;
+                        albumArt.alt = `${data.now_playing.song.artist} - ${data.now_playing.song.title}`;
+                        albumArt.classList.remove('fade-out');
+                        albumArt.classList.add('fade-in');
+                    }, 500); // Change image mid-transition
 
                     // Update body background based on album art
-                    if (albumArtUrl) {
-                        document.body.style.backgroundImage = `url(${albumArtUrl})`;
-                        document.body.style.backgroundSize = 'cover';
-                        document.body.style.backgroundPosition = 'center';
-                        document.body.style.backgroundBlendMode = 'overlay';
-                    }
+                    document.body.style.backgroundImage = `url(${albumArtUrl})`;
 
                     // Set Media Session API metadata
                     if ('mediaSession' in navigator) {
@@ -129,27 +142,51 @@ document.addEventListener('DOMContentLoaded', function () {
                     audioPlayer.src = data.station.listen_url;
                     audioPlayer.play();
                 }
+
+                // Update play/pause button state
+                updatePlayPauseButton();
             })
             .catch(error => console.error('Error fetching now playing information:', error));
     }
 
     // Custom audio controls functionality
     let playPauseButton = document.getElementById('play-pause-button');
+    let refreshButton = document.getElementById('refresh-button');
     let volumeSlider = document.getElementById('volume-slider');
     let volumeLabel = document.getElementById('volume-label');
 
     playPauseButton.addEventListener('click', function () {
         if (audioPlayer.paused) {
             audioPlayer.play();
-            playPauseButton.innerHTML = '<i class="fas fa-pause"></i>';
         } else {
             audioPlayer.pause();
-            playPauseButton.innerHTML = '<i class="fas fa-play"></i>';
         }
+        updatePlayPauseButton();
+    });
+
+    refreshButton.addEventListener('click', function () {
+        if (audioPlayer.src) {
+            audioPlayer.pause();
+            audioPlayer.load(); // Reload the audio source
+            audioPlayer.play();
+        }
+        updatePlayPauseButton();
     });
 
     volumeSlider.addEventListener('input', function () {
         audioPlayer.volume = volumeSlider.value;
         volumeLabel.textContent = `Volume: ${(volumeSlider.value * 100).toFixed(0)}%`;
     });
+
+    // Function to update play/pause button state
+    function updatePlayPauseButton() {
+        if (audioPlayer.paused) {
+            playPauseButton.innerHTML = '<i class="fas fa-play"></i>';
+        } else {
+            playPauseButton.innerHTML = '<i class="fas fa-pause"></i>';
+        }
+    }
+
+    // Update play/pause button state on page load
+    updatePlayPauseButton();
 });
