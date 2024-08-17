@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let audioPlayer = document.getElementById('audio-player');
     let currentStationId = null;
     let songEndTimeout = null;
+    let currentStationLink = ''; // Global variable for the shareable link
     const defaultBackground = 'url("path-to-default-background-image")'; // Set your default background image path
 
     // Set default volume to 25%
@@ -137,6 +138,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
 
+                // Set the shareable link for the current station
+                currentStationLink = `https://radio.banabyte.com/listen/${data.station.shortcode}/radio.mp3`;
+
                 // Play the station if not already playing
                 if (audioPlayer.src !== data.station.listen_url) {
                     audioPlayer.src = data.station.listen_url;
@@ -187,6 +191,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Update play/pause button state on page load
-    updatePlayPauseButton();
+    // Event listener for share button
+    document.getElementById('share-button').addEventListener('click', function () {
+        if (navigator.share) {
+            navigator.share({
+                title: document.getElementById('station-name').textContent,
+                url: currentStationLink
+            }).catch(error => console.error('Error sharing:', error));
+        } else {
+            // Fallback for browsers that don't support the Web Share API
+            const text = `Check out ${document.getElementById('station-name').textContent}: ${currentStationLink}`;
+            prompt('Copy the link below to share:', text);
+        }
+    });
 });
