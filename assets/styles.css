@@ -198,3 +198,19 @@ footer {
 #volume-label {
     margin-left: 10px;
 }
+
+.next-song {
+    color: white;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    transform: translateY(100%);
+}
+
+.next-song.visible {
+    transform: translateY(0%);
+}
+
+.next-song.hidden {
+    transform: translateY(100%);
+}

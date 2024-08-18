@@ -1,60 +1,109 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async () => {
     // Define variables
-    let toggleStationsButton = document.getElementById('toggle-stations');
-    let stationsSidebar = document.getElementById('stations-sidebar');
-    let audioPlayer = document.getElementById('audio-player');
+    const toggleStationsButton = document.getElementById('toggle-stations');
+    const stationsSidebar = document.getElementById('stations-sidebar');
+    const audioPlayer = document.getElementById('audio-player');
+    const stationsMenu = document.getElementById('stations-menu');
+    const volumeLabel = document.getElementById('volume-label');
     let currentStationId = null;
     let songEndTimeout = null;
+    let nextSongTimeout = null;
     let currentStationLink = ''; // Global variable for the shareable link
     const defaultBackground = 'url("path-to-default-background-image")'; // Set your default background image path
 
     // Set default volume to 25%
     audioPlayer.volume = 0.25;
-    document.getElementById('volume-label').textContent = 'Volume: 25%';
+    volumeLabel.textContent = 'Volume: 25%';
 
     // Toggle sidebar visibility
-    toggleStationsButton.addEventListener('click', function () {
+    toggleStationsButton.addEventListener('click', () => {
         stationsSidebar.classList.toggle('open');
     });
 
     // Fetch stations from AzuraCast API and play the first station by default or last played station from localStorage
-    fetch('https://radio.banabyte.com/api/stations')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Stations data:', data); // Log stations data
-            // Display list of stations
-            const stationsMenu = document.getElementById('stations-menu');
-            data.forEach(station => {
-                const stationItem = document.createElement('li');
-                stationItem.textContent = station.name;
-                stationItem.addEventListener('click', () => {
-                    playStation(station.id);
-                    localStorage.setItem('lastStationId', station.id); // Save the selected station ID
-                });
-                stationsMenu.appendChild(stationItem);
+    try {
+        const responseStations = await fetch('https://radio.banabyte.com/api/stations');
+        if (!responseStations.ok) {
+            throw new Error(`Network response was not ok ${response.statusText}`);
+        }
+        const stations = await responseStations.json();
+        console.log('Stations data:', stations); // Log stations data
+        // Display list of stations
+        for (const station of stations) {
+            const responseStationStatus = await fetch(`https://radio.banabyte.com/api/nowplaying/${station.shortcode}`);
+            const stationStatus = await responseStationStatus.json();
+            console.log(`station ${station.shortcode} status:`, stationStatus);
+            if (stationStatus.is_online === false) continue;
+            const stationItem = document.createElement('li');
+            stationItem.textContent = station.name;
+            stationItem.addEventListener('click', () => {
+                playStation(station.id);
+                localStorage.setItem('lastStationId', station.id); // Save the selected station ID
             });
+            stationsMenu.appendChild(stationItem);
+        }
 
-            // Check localStorage for the last played station ID
-            const lastStationId = localStorage.getItem('lastStationId');
-            if (lastStationId) {
-                playStation(lastStationId);
-            } else if (data.length > 0) {
-                playStation(data[0].id);
-            }
-        })
-        .catch(error => console.error('Error fetching stations:', error));
+        // Check localStorage for the last played station ID
+        const lastStationId = localStorage.getItem('lastStationId');
+        if (lastStationId) {
+            playStation(lastStationId);
+        } else if (stations.length > 0) {
+            playStation(stations[0].id);
+        }
+    }
+    catch (error) {
+        console.error('Error fetching stations:', error)
+    }
 
     // Function to play the selected station
     function playStation(stationId) {
         if (currentStationId === stationId) return; // Prevent re-fetching if the same station is clicked
 
+        // Clear existing timeouts to avoid overlapping
+        if (songEndTimeout) {
+            clearTimeout(songEndTimeout);
+        }
+        if (nextSongTimeout) {
+            clearTimeout(nextSongTimeout);
+        }
+
+        // Hide next song info when switching stations
+        hideNextSongInfo();
+
         currentStationId = stationId;
         fetchNowPlaying(stationId);
+    }
+
+    // Function to hide next song info with animation
+    function hideNextSongInfo() {
+        const nextSongInfo = document.getElementById('next-song-info');
+        nextSongInfo.classList.remove('visible');
+        nextSongInfo.classList.add('hidden');
+        setTimeout(() => {
+            nextSongInfo.style.display = 'none';
+        }, 300); // Delay for slide down animation to complete
+    }
+
+    // Function to show next song info with animation
+    function showNextSongInfo(title) {
+        const nextSongInfo = document.getElementById('next-song-info');
+        document.getElementById('next-song-title').textContent = title;
+        nextSongInfo.style.display = 'block';
+        setTimeout(() => {
+            nextSongInfo.classList.remove('hidden');
+            nextSongInfo.classList.add('visible');
+        }, 10); // Trigger CSS transition
+    }
+
+    // Function to clear next song info
+    function clearNextSongInfo() {
+        const nextSongInfo = document.getElementById('next-song-info');
+        nextSongInfo.classList.remove('visible');
+        nextSongInfo.classList.add('hidden');
+        setTimeout(() => {
+            nextSongInfo.style.display = 'none';
+        }, 300); // Delay for slide down animation to complete
+        document.getElementById('next-song-title').textContent = ''; // Clear the next song title
     }
 
     // Function to fetch and display the currently playing song
@@ -62,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch(`https://radio.banabyte.com/api/nowplaying/${stationId}`)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
+                    throw new Error(`Network response was not ok ${response.statusText}`);
                 }
                 return response.json();
             })
@@ -73,6 +122,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const stationName = document.getElementById('station-name');
                 const songTitle = document.getElementById('song-title');
                 const albumArt = document.getElementById('album-art');
+                const nextSongTitle = document.getElementById('next-song-title');
+                const nextSongInfo = document.getElementById('next-song-info');
 
                 // Display station name
                 stationName.textContent = data.station.name;
@@ -114,11 +165,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                     }
 
-                    // Clear any existing timeout
-                    if (songEndTimeout) {
-                        clearTimeout(songEndTimeout);
-                    }
-
                     // Calculate remaining time and set timeout to fetch next song information
                     const startTimestamp = data.now_playing.played_at * 1000;
                     const currentTimestamp = Date.now();
@@ -126,7 +172,24 @@ document.addEventListener('DOMContentLoaded', function () {
                     const durationMs = data.now_playing.duration * 1000;
                     const remainingMs = durationMs - elapsedMs;
 
-                    songEndTimeout = setTimeout(() => fetchNowPlaying(stationId), remainingMs);
+                    const showNextSongMs = remainingMs - 20000; // 20 seconds before end
+
+                    // Show next song info 20 seconds before the current song ends
+                    if (data.playing_next) {
+                        nextSongTimeout = setTimeout(() => {
+                            if (currentStationId === stationId) { // Ensure the station is still the current one
+                                showNextSongInfo(`Next: ${data.playing_next.song.title} - ${data.playing_next.song.artist}`);
+                            }
+                        }, showNextSongMs);
+                    }
+
+                    // Set timeout to fetch new now playing data and hide the next song info
+                    songEndTimeout = setTimeout(() => {
+                        if (currentStationId === stationId) { // Ensure the station is still the current one
+                            fetchNowPlaying(stationId);
+                            clearNextSongInfo();
+                        }
+                    }, remainingMs);
                 } else {
                     songTitle.textContent = 'No song currently playing.';
                     albumArt.src = ''; // Clear album art
@@ -154,12 +217,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Custom audio controls functionality
-    let playPauseButton = document.getElementById('play-pause-button');
-    let refreshButton = document.getElementById('refresh-button');
-    let volumeSlider = document.getElementById('volume-slider');
-    let volumeLabel = document.getElementById('volume-label');
+    const playPauseButton = document.getElementById('play-pause-button');
+    const refreshButton = document.getElementById('refresh-button');
+    const volumeSlider = document.getElementById('volume-slider');
 
-    playPauseButton.addEventListener('click', function () {
+    playPauseButton.addEventListener('click', () => {
         if (audioPlayer.paused) {
             audioPlayer.play();
         } else {
@@ -168,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
         updatePlayPauseButton();
     });
 
-    refreshButton.addEventListener('click', function () {
+    refreshButton.addEventListener('click', () => {
         if (audioPlayer.src) {
             audioPlayer.pause();
             audioPlayer.load(); // Reload the audio source
@@ -177,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
         updatePlayPauseButton();
     });
 
-    volumeSlider.addEventListener('input', function () {
+    volumeSlider.addEventListener('input', () => {
         audioPlayer.volume = volumeSlider.value;
         volumeLabel.textContent = `Volume: ${(volumeSlider.value * 100).toFixed(0)}%`;
     });
@@ -192,16 +254,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Event listener for share button
-    document.getElementById('share-button').addEventListener('click', function () {
+    document.getElementById('share-button').addEventListener('click', () => {
         if (navigator.share) {
             navigator.share({
                 title: document.getElementById('station-name').textContent,
                 url: currentStationLink
             }).catch(error => console.error('Error sharing:', error));
         } else {
-            // Fallback for browsers that don't support the Web Share API
-            const text = `Check out ${document.getElementById('station-name').textContent}: ${currentStationLink}`;
-            prompt('Copy the link below to share:', text);
+            prompt('Copy this link to share:', currentStationLink);
+        }
+    });
+
+    // Auto-hide stations sidebar on window resize if width is greater than 768px
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            stationsSidebar.classList.remove('open');
         }
     });
 });
