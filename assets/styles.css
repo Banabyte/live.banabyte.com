@@ -232,6 +232,13 @@ footer {
     font-family: Arial, sans-serif;
     font-size: 20px;
     text-align: center;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+#loading-screen.hidden {
+    opacity: 0;
+    pointer-events: none; /* Prevents interaction during fade-out */
 }
 
 .spinner {

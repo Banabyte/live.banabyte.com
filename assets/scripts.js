@@ -58,8 +58,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     catch (error) {
         console.error('Error fetching stations:', error)
     } finally {
-        // Hide the loading screen after the data is fetched
-        loadingScreen.style.display = 'none';
+        // Fade out the loading screen
+        loadingScreen.classList.add('hidden');
+
+        // Optionally, remove the loading screen from the DOM after the fade-out completes
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+        }, 500); // Match the timeout with the CSS transition duration (0.5s)
     };
 
     // Function to play the selected station
