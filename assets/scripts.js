@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const audioPlayer = document.getElementById('audio-player');
     const stationsMenu = document.getElementById('stations-menu');
     const volumeLabel = document.getElementById('volume-label');
+    const loadingScreen = document.getElementById('loading-screen');
     let currentStationId = null;
     let songEndTimeout = null;
     let nextSongTimeout = null;
@@ -19,6 +20,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     toggleStationsButton.addEventListener('click', () => {
         stationsSidebar.classList.toggle('open');
     });
+
+    // Show the loading screen when starting to fetch data
+    loadingScreen.style.display = 'flex';
 
     // Fetch stations from AzuraCast API and play the first station by default or last played station from localStorage
     try {
@@ -53,7 +57,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     catch (error) {
         console.error('Error fetching stations:', error)
-    }
+    } finally {
+        // Hide the loading screen after the data is fetched
+        loadingScreen.style.display = 'none';
+    };
 
     // Function to play the selected station
     function playStation(stationId) {
