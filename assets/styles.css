@@ -235,11 +235,11 @@ footer {
 }
 
 .spinner {
-    border: 6px solid #f3f3f3; /* Light grey */
-    border-top: 6px solid #3498db; /* Blue */
+    border: 6px solid #a3a3a3; /* Light grey */
+    border-top: 6px solid #ffffff; /* Blue */
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 100px;
+    height: 100px;
     animation: spin 1s linear infinite;
 }
 
