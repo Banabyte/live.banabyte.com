@@ -6,6 +6,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const stationsMenu = document.getElementById('stations-menu');
     const volumeLabel = document.getElementById('volume-label');
     const loadingScreen = document.getElementById('loading-screen');
+    const stationName = document.getElementById('station-name');
+    const songTitle = document.getElementById('song-title');
+    const albumArt = document.getElementById('album-art');
+    const nextSongTitle = document.getElementById('next-song-title');
+    const nextSongInfo = document.getElementById('next-song-info');
     let currentStationId = null;
     let songEndTimeout = null;
     let nextSongTimeout = null;
@@ -23,6 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Show the loading screen when starting to fetch data
     loadingScreen.style.display = 'flex';
+    albumArt.style.display = 'none';
 
     // Fetch stations from AzuraCast API and play the first station by default or last played station from localStorage
     try {
@@ -60,10 +66,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     } finally {
         // Fade out the loading screen
         loadingScreen.classList.add('hidden');
+        albumArt.classList.add('Visible');
 
         // Optionally, remove the loading screen from the DOM after the fade-out completes
         setTimeout(() => {
             loadingScreen.style.display = 'none';
+            albumArt.style.display = '';
         }, 500); // Match the timeout with the CSS transition duration (0.5s)
     };
 
@@ -91,9 +99,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const nextSongInfo = document.getElementById('next-song-info');
         nextSongInfo.classList.remove('visible');
         nextSongInfo.classList.add('hidden');
-        setTimeout(() => {
-            nextSongInfo.style.display = 'none';
-        }, 300); // Delay for slide down animation to complete
     }
 
     // Function to show next song info with animation
@@ -101,10 +106,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const nextSongInfo = document.getElementById('next-song-info');
         document.getElementById('next-song-title').textContent = title;
         nextSongInfo.style.display = 'block';
-        setTimeout(() => {
-            nextSongInfo.classList.remove('hidden');
-            nextSongInfo.classList.add('visible');
-        }, 10); // Trigger CSS transition
     }
 
     // Function to clear next song info
@@ -112,9 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const nextSongInfo = document.getElementById('next-song-info');
         nextSongInfo.classList.remove('visible');
         nextSongInfo.classList.add('hidden');
-        setTimeout(() => {
-            nextSongInfo.style.display = 'none';
-        }, 300); // Delay for slide down animation to complete
+        nextSongInfo.style.display = 'none';
         document.getElementById('next-song-title').textContent = ''; // Clear the next song title
     }
 
@@ -130,12 +129,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             .then(data => {
                 console.log('Now playing data:', data); // Log now playing data
                 if (currentStationId !== stationId) return; // Ensure the data corresponds to the current station
-
-                const stationName = document.getElementById('station-name');
-                const songTitle = document.getElementById('song-title');
-                const albumArt = document.getElementById('album-art');
-                const nextSongTitle = document.getElementById('next-song-title');
-                const nextSongInfo = document.getElementById('next-song-info');
 
                 // Display station name
                 stationName.textContent = data.station.name;
