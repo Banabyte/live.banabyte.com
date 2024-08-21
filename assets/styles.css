@@ -26,8 +26,8 @@ header {
 
 h1 {
     margin: 0;
-    font-size: 2.5em;
-    color: #ffffff;
+    font-size: 1.5em;
+    color: #ffffff;   
 }
 
 .menu-icon {
@@ -100,6 +100,20 @@ section {
 h2 {
     text-align: center;
     color: #ffffff;
+    margin-block-start: auto;
+    margin-block-end: 0.23cm;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+}
+
+h3 {display: block;
+    font-size: 1em;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: normal;
+    unicode-bidi: isolate;
 }
 
 #stations-list {
@@ -246,4 +260,11 @@ footer {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+.station-logo { 
+    max-height: 120px;
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
 }
