@@ -92,7 +92,7 @@ main {
 
 section {
     width: 100%;
-    max-height: fit-content;
+    max-height: 100%;
     padding: 20px;
     background-color: rgba(43, 43, 43, 0.9);
 }
