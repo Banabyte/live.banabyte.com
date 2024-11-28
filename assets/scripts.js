@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Fetch stations from AzuraCast API and play the first station by default or last played station from localStorage
     try {
-        const responseStations = await fetch('https://radio.banabyte.com/api/stations');
+        const responseStations = await fetch('https://azuracast.banabyte.com/api/stations');
         if (!responseStations.ok) {
             throw new Error(`Network response was not ok ${responseStations.statusText}`);
         }
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('Stations data:', stations); // Log stations data
         // Display list of stations
         for (const station of stations) {
-            const responseStationStatus = await fetch(`https://radio.banabyte.com/api/nowplaying/${station.shortcode}`);
+            const responseStationStatus = await fetch(`https://azuracast.banabyte.com/api/nowplaying/${station.shortcode}`);
             const stationStatus = await responseStationStatus.json();
             console.log(`station ${station.shortcode} status:`, stationStatus);
             if (stationStatus.is_online === false) continue;
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentStationId = stationId;
 
         // Fetch the station's streaming URL
-        fetch(`https://radio.banabyte.com/api/station/${stationId}`)
+        fetch(`https://azuracast.banabyte.com/api/station/${stationId}`)
             .then(response => response.json())
             .then(data => {
                 const streamUrl = data.listen_url;
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Function to fetch and display the currently playing song
     function fetchNowPlaying(stationId) {
-        fetch(`https://radio.banabyte.com/api/nowplaying/${stationId}`)
+        fetch(`https://azuracast.banabyte.com/api/nowplaying/${stationId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Network response was not ok ${response.statusText}`);
@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 // Set the shareable link for the current station
-                currentStationLink = `https://radio.banabyte.com/listen/${data.station.shortcode}/radio.mp3`;
+                currentStationLink = `https://azuracast.banabyte.com/listen/${data.station.shortcode}/radio.mp3`;
 
                 // Play the station if not already playing
                 if (audioPlayer.src !== data.station.listen_url) {
