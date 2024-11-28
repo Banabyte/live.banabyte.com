@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Fetch stations from AzuraCast API and play the first station by default or last played station from localStorage
     try {
-        const responseStations = await fetch('https://azurecast.banabyte.com/api/stations');
+        const responseStations = await fetch('https://radio.banabyte.com/api/stations');
         if (!responseStations.ok) {
             throw new Error(`Network response was not ok ${responseStations.statusText}`);
         }
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('Stations data:', stations); // Log stations data
         // Display list of stations
         for (const station of stations) {
-            const responseStationStatus = await fetch(`https://azurecast.banabyte.com/api/nowplaying/${station.shortcode}`);
+            const responseStationStatus = await fetch(`https://radio.banabyte.com/api/nowplaying/${station.shortcode}`);
             const stationStatus = await responseStationStatus.json();
             console.log(`station ${station.shortcode} status:`, stationStatus);
             if (stationStatus.is_online === false) continue;
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentStationId = stationId;
 
         // Fetch the station's streaming URL
-        fetch(`https://azurecast.banabyte.com/api/station/${stationId}`)
+        fetch(`https://radio.banabyte.com/api/station/${stationId}`)
             .then(response => response.json())
             .then(data => {
                 const streamUrl = data.listen_url;
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Function to fetch and display the currently playing song
     function fetchNowPlaying(stationId) {
-        fetch(`https://azurecast.banabyte.com/api/nowplaying/${stationId}`)
+        fetch(`https://radio.banabyte.com/api/nowplaying/${stationId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Network response was not ok ${response.statusText}`);
@@ -222,4 +222,91 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (data.playing_next) {
                         nextSongTimeout = setTimeout(() => {
                             if (currentStationId === stationId) { // Ensure the station is still the current one
-                                showNext
+                                showNextSongInfo(`Next: ${data.playing_next.song.title} - ${data.playing_next.song.artist}`);
+                            }
+                        }, showNextSongMs);
+                    }
+
+                    // Fetch the next song info when the current song ends
+                    songEndTimeout = setTimeout(() => {
+                        if (currentStationId === stationId) { // Ensure the station is still the current one
+                            fetchNowPlaying(stationId);
+                            clearNextSongInfo(); // Hide next song info when the song ends
+                        }
+                    }, remainingMs);
+                } else {
+                    songTitle.textContent = 'No song currently playing.';
+                    albumArt.src = ''; // Clear album art
+                    albumArt.alt = 'No album art available';
+
+                    // Clear Media Session API metadata
+                    if ('mediaSession' in navigator) {
+                        navigator.mediaSession.metadata = null;
+                    }
+                }
+
+                // Set the shareable link for the current station
+                currentStationLink = `https://radio.banabyte.com/listen/${data.station.shortcode}/radio.mp3`;
+
+                // Play the station if not already playing
+                if (audioPlayer.src !== data.station.listen_url) {
+                    audioPlayer.src = data.station.listen_url;
+                    audioPlayer.play();
+                }
+
+                // Update play/pause button state
+                updatePlayPauseButton();
+            })
+            .catch(error => console.error('Error fetching now playing information:', error));
+    }
+
+    // Custom audio controls functionality
+    const playPauseButton = document.getElementById('play-pause-button');
+    const refreshButton = document.getElementById('refresh-button');
+    const volumeSlider = document.getElementById('volume-slider');
+
+    playPauseButton.addEventListener('click', () => {
+        if (audioPlayer.paused) {
+            audioPlayer.play();
+        } else {
+            audioPlayer.pause();
+        }
+        updatePlayPauseButton();
+    });
+
+    refreshButton.addEventListener('click', () => {
+        if (audioPlayer.src) {
+            audioPlayer.pause();
+            audioPlayer.load(); // Reload the audio source
+            audioPlayer.play();
+        }
+        updatePlayPauseButton();
+    });
+
+    volumeSlider.addEventListener('input', () => {
+        audioPlayer.volume = volumeSlider.value;
+        volumeLabel.textContent = `Volume: ${(volumeSlider.value * 100).toFixed(0)}%`;
+    });
+
+    // Function to update play/pause button state
+    function updatePlayPauseButton() {
+        if (audioPlayer.paused) {
+            playPauseButton.innerHTML = '<i class="fas fa-play"></i>';
+        } else {
+            playPauseButton.innerHTML = '<i class="fas fa-pause"></i>';
+        }
+    }
+
+    // Event listener for share button
+    document.getElementById('share-button').addEventListener('click', () => {
+        if (navigator.share) {
+            navigator.share({
+                title: 'Now Playing',
+                text: 'Listen to this station',
+                url: currentStationLink // Use the global variable for the current station link
+            }).catch(error => console.error('Error sharing:', error));
+        } else {
+            console.log('Web Share API is not supported in your browser.');
+        }
+    });
+});
