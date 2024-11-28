@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Display station logo or name
                 const stationShortcode = data.station.shortcode;
                 const stationNameText = data.station.name;
-                const logoUrl = `https://live.banabyte.com/assets/station_logos/${stationShortcode}.png`;
+                const logoUrl = `https://radio.banabyte.com/assets/station_logos/${stationShortcode}.png`;
 
                 // Create an image element to check if the logo exists
                 const img = new Image();
