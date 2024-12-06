@@ -90,10 +90,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Hide next song info when switching stations
         hideNextSongInfo();
 
-        // Stop the current audio if it's playing
-        audioPlayer.pause();
-        audioPlayer.currentTime = 0;
-
         currentStationId = stationId;
 
         // Fetch the station's streaming URL
@@ -104,7 +100,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // Update the audio player's source and play
                 audioPlayer.src = streamUrl;
-                audioPlayer.load();  // Load the new source before playing
                 audioPlayer.play();
 
                 // Update the global station link for sharing
